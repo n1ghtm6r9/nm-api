@@ -1,0 +1,33 @@
+{
+  "name": "@nmxjs/api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "start": "echo [@nmxjs/api has no start script]",
+    "clear": "rm -rf dist",
+    "build": "yarn clear; tsc",
+    "test": "jest --config=jest.config.js --runInBand --passWithNoTests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/n1ghtm6r9/nm-api.git"
+  },
+  "keywords": [],
+  "author": "N1ghtm6r9",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/n1ghtm6r9/nm-api/issues"
+  },
+  "homepage": "https://github.com/n1ghtm6r9/nm-api#readme",
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.2.10",
+    "@nmxjs/config": "^1.0.0",
+    "@nmxjs/utils": "^1.0.0"
+  }
+}
