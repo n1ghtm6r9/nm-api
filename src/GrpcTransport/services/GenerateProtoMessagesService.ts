@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IGenerateProtoMessagesOptions } from '../interfaces/IGenerateProtoMessagesOptions';
+import { IGenerateProtoMessagesOptions } from '../interfaces';
 
 @Injectable()
 export class GenerateProtoMessagesService {
@@ -25,7 +25,7 @@ export class GenerateProtoMessagesService {
       if (fieldData.type === String || fieldData.enum) {
         fieldStr += `string `;
       } else if (fieldData.type === Number) {
-        fieldStr += `float `;
+        fieldStr += `double `;
       } else if (fieldData.type === Boolean) {
         fieldStr += `bool `;
       } else if (fieldData.type === Object) {

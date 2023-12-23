@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
+import { GrpcMethod, MessagePattern } from '@nestjs/microservices';
 import { isWorkerApp } from '@nmxjs/utils';
 
 export const ControllerEndpoints = (serviceName: string) => (target: Function) => {
@@ -10,6 +10,7 @@ export const ControllerEndpoints = (serviceName: string) => (target: Function) =
         return;
       }
       GrpcMethod(serviceName, key)(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
+      MessagePattern(`${serviceName}.${key}`)(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
     });
   }
 };

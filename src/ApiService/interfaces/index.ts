@@ -4,3 +4,6 @@ export * from './IApiServiceFactory';
 export * from './IGenerateProtoOptions';
 export * from './ICreateApiServiceOptions';
 export * from './IApiServiceWithInfo';
+export * from './WebApiTypeEnum';
+export * from './ITransportStrategy';
+export * from './IApiServiceOptions';

@@ -1,3 +1,4 @@
 export * from './apiRouterKey';
 export * from './endErrorText';
-export * from './getGrpcOptionsKey';
+export * from './transporterOptionsKey';
+export * from './apiRouterResolversKey';

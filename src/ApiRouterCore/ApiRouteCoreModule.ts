@@ -1,11 +1,13 @@
+import * as deepmerge from 'deepmerge';
 import { DynamicModule } from '@nestjs/common';
-import { buildGrpcOptions } from './utils';
-import { apiRouterKey, getGrpcOptionsKey } from './constants';
-import type { IApiServiceWithInfo } from '../ApiService';
+import { ForbiddenError } from '@nmxjs/errors';
+import { firstLetterUpperCase } from '@nmxjs/utils';
+import { apiRouterKey, apiRouterResolversKey, transporterOptionsKey } from './constants';
+import { WebApiTypeEnum, IApiServiceWithInfo, getQueryMutationByName, webApiProperty } from '../ApiService';
 import { IApiRouterCoreModuleOptions } from './interfaces';
 
 export class ApiRouteCoreModule {
-  public static forRoot({ imports, apiRouterFactory, servicesKeys }: IApiRouterCoreModuleOptions): DynamicModule {
+  public static forRoot({ imports, apiRouterFactory, servicesKeys, webApiAuthHandler }: IApiRouterCoreModuleOptions): DynamicModule {
     return {
       global: true,
       imports,
@@ -17,7 +19,7 @@ export class ApiRouteCoreModule {
           inject: servicesKeys,
         },
         {
-          provide: getGrpcOptionsKey,
+          provide: transporterOptionsKey,
           useFactory:
             (...services: IApiServiceWithInfo[]) =>
             (serviceName: string) => {
@@ -27,17 +29,54 @@ export class ApiRouteCoreModule {
                 return null;
               }
 
-              return buildGrpcOptions({
-                host: servicesInfo.find(v => v.host)?.host,
-                port: servicesInfo.find(v => v.port)?.port,
-                packages: Array.from(new Set(servicesInfo.map(v => v.package))),
-                protoPaths: servicesInfo.map(v => v.protoPath),
-              });
+              return servicesInfo.reduce((res, v) => deepmerge(res, v.options as object));
             },
           inject: servicesKeys,
         },
+        {
+          provide: apiRouterResolversKey,
+          useFactory: apiRouter => {
+            return Object.keys(apiRouter).reduce((res: any, apiRouterKey) => {
+              Object.keys(apiRouter[apiRouterKey]).forEach(key => {
+                const item = apiRouter[apiRouterKey];
+                const webApiType: WebApiTypeEnum = Reflect.getMetadata(webApiProperty, item[key]);
+
+                if (!webApiType) {
+                  return;
+                }
+
+                if (webApiType === WebApiTypeEnum.SECURED && !webApiAuthHandler) {
+                  throw new Error('Web api auth handler is not setup!');
+                }
+
+                const fn =
+                  webApiType === WebApiTypeEnum.FREE
+                    ? (_, data) => item[key](data?.request || {})
+                    : async (_, data, context) => {
+                        const authResult = await webApiAuthHandler({
+                          apiRouter,
+                          req: context.req,
+                        });
+
+                        if (!authResult) {
+                          throw new ForbiddenError();
+                        }
+
+                        return item[key](data?.request || {});
+                      };
+                const property = getQueryMutationByName(key).type;
+                res[property] = {
+                  ...res[property],
+                  [`${apiRouterKey}0${firstLetterUpperCase({ str: key })}`]: fn,
+                };
+              });
+              return res;
+            }, {});
+          },
+          inject: [apiRouterKey],
+        },
       ],
-      exports: [apiRouterKey, getGrpcOptionsKey],
+      exports: [apiRouterKey, transporterOptionsKey, apiRouterResolversKey],
     };
   }
 }

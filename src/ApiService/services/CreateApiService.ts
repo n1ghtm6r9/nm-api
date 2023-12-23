@@ -1,41 +1,76 @@
-import { ClientGrpc, ClientProxyFactory } from '@nestjs/microservices';
 import { Inject, Injectable } from '@nestjs/common';
 import { configKey, IConfig } from '@nmxjs/config';
-import { buildGrpcOptions } from '../../ApiRouterCore/utils';
-import { GenerateProtoService } from './GenerateProtoService';
-import { ICreateApiServiceOptions, IApiServiceWithInfo } from '../interfaces';
+import { isObservable, lastValueFrom } from 'rxjs';
+import { transportStrategyKey, webApiProperty } from '../constants';
+import { ICreateApiServiceOptions, IApiServiceWithInfo, ITransportStrategy, IApiServiceOptions } from '../interfaces';
+import { TrySetupWebApiService } from './TrySetupWebApiService';
+import { ServiceNotAvailableError } from '@nmxjs/errors';
 
 @Injectable()
 export class CreateApiService {
-  constructor(@Inject(configKey) protected readonly config: IConfig, protected readonly generateProtoService: GenerateProtoService) {}
+  // @ts-ignore
+  protected cache = new NodeCache();
 
-  public call({ schema, service, subService }: ICreateApiServiceOptions): IApiServiceWithInfo {
-    const serviceInfo = this.config.grpc?.services.find(v => v.name === service);
+  constructor(
+    @Inject(configKey) protected readonly config: IConfig,
+    @Inject(transportStrategyKey) protected readonly transportStrategy: ITransportStrategy,
+    protected readonly trySetupWebApiService: TrySetupWebApiService,
+  ) {}
 
-    if (!serviceInfo) {
-      return;
-    }
+  public async call(options: ICreateApiServiceOptions): Promise<IApiServiceWithInfo> {
+    this.trySetupWebApiService.call(options);
+    const result = await this.transportStrategy.createService(options);
+    const serviceName = options.subService || options.service;
 
-    const serviceName = subService || service;
-    const { protoPath, packageName, protoServiceName } = this.generateProtoService.call({ schema, service: serviceName });
+    const service = Object.keys(result.service).reduce((res, methodName) => {
+      res[methodName] = async (requestData: Record<string, unknown> = {}, methodOptions: IApiServiceOptions = {}) => {
+        const route = `${serviceName}.${methodName}`;
+
+        const getData = () => {
+          const payload = result.service[methodName](requestData);
+          return (isObservable(payload) ? lastValueFrom(payload) : payload).catch(e => {
+            if (requestData.skipError || methodOptions.skipError) {
+              return;
+            }
+            if (e.message.includes('Empty response. There are no subscribers listening to that message')) {
+              throw new ServiceNotAvailableError(serviceName, methodName);
+            }
+            throw e;
+          });
+        };
+
+        const cacheTtlMs = requestData.cacheTtlMs || methodOptions.cacheTtlMs;
+
+        if (typeof cacheTtlMs !== 'number') {
+          return getData();
+        }
+
+        // @ts-ignore
+        const key = objHash({
+          route,
+          requestData,
+        });
+
+        let result = this.cache.get(key);
+
+        if (!result) {
+          result = await getData();
+          this.cache.set(key, result, cacheTtlMs === Infinity ? undefined : Math.ceil(cacheTtlMs / 1000));
+        }
+
+        return result;
+      };
+
+      if (options.schema[methodName].webApiType) {
+        Reflect.defineMetadata(webApiProperty, options.schema[methodName].webApiType, service[methodName]);
+      }
+
+      return res;
+    }, {});
 
     return {
-      serviceName: service,
-      subServiceName: subService,
-      port: serviceInfo.port,
-      host: serviceInfo.host,
-      package: packageName,
-      protoPath: protoPath,
-      service: (
-        ClientProxyFactory.create(
-          buildGrpcOptions({
-            port: serviceInfo.port,
-            host: serviceInfo.host,
-            packages: [packageName],
-            protoPaths: [protoPath],
-          }),
-        ) as unknown as ClientGrpc
-      ).getService(protoServiceName),
+      ...result,
+      service,
     };
   }
 }

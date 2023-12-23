@@ -1,6 +1,6 @@
 {
   "name": "@nmxjs/api",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,12 +22,21 @@
   },
   "homepage": "https://github.com/n1ghtm6r9/nm-api#readme",
   "devDependencies": {
+    "@types/deepmerge": "^2.2.0",
     "@types/node": "^20.10.4",
     "typescript": "^5.1.6"
   },
   "dependencies": {
     "@nestjs/common": "^10.2.10",
-    "@nmxjs/config": "^1.0.0",
-    "@nmxjs/utils": "^1.0.0"
+    "@nestjs/graphql": "^12.0.11",
+    "@nmxjs/config": "^1.0.2",
+    "@nmxjs/errors": "^1.0.3",
+    "@nmxjs/utils": "^1.0.0",
+    "deepmerge": "^4.3.1",
+    "express": "^4.18.2",
+    "node-cache": "^5.1.2",
+    "object-hash": "^3.0.0",
+    "reflect-metadata": "^0.2.1",
+    "rxjs": "^7.8.1"
   }
 }

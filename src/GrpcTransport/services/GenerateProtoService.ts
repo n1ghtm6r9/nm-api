@@ -1,17 +1,15 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { Inject, Injectable } from '@nestjs/common';
-import { configKey, IConfig } from '@nmxjs/config';
+import { Injectable } from '@nestjs/common';
 import { firstLetterUpperCase } from '@nmxjs/utils';
-import { ICreateApiServiceOptions } from '../interfaces';
+import type { ICreateApiServiceOptions } from '../../ApiService';
 import { GetPackageNameService } from './GetPackageNameService';
 import { GenerateProtoMessagesService } from './GenerateProtoMessagesService';
 
 @Injectable()
 export class GenerateProtoService {
   constructor(
-    @Inject(configKey) protected readonly config: IConfig,
     protected readonly getPackageNameService: GetPackageNameService,
     protected readonly generateProtoMessagesService: GenerateProtoMessagesService,
   ) {}
