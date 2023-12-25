@@ -2,9 +2,9 @@ import * as deepmerge from 'deepmerge';
 import { DynamicModule } from '@nestjs/common';
 import { ForbiddenError } from '@nmxjs/errors';
 import { firstLetterUpperCase } from '@nmxjs/utils';
-import { apiRouterKey, apiRouterResolversKey, transporterOptionsKey } from './constants';
+import { apiRouterKey, apiRouterResolversKey, getTransporterOptionsKey } from './constants';
 import { WebApiTypeEnum, IApiServiceWithInfo, getQueryMutationByName, webApiProperty } from '../ApiService';
-import { IApiRouterCoreModuleOptions } from './interfaces';
+import { GetTransporterOptions, IApiRouterCoreModuleOptions } from './interfaces';
 
 export class ApiRouteCoreModule {
   public static forRoot({ imports, apiRouterFactory, servicesKeys, webApiAuthHandler }: IApiRouterCoreModuleOptions): DynamicModule {
@@ -19,9 +19,9 @@ export class ApiRouteCoreModule {
           inject: servicesKeys,
         },
         {
-          provide: transporterOptionsKey,
+          provide: getTransporterOptionsKey,
           useFactory:
-            (...services: IApiServiceWithInfo[]) =>
+            (...services: IApiServiceWithInfo[]): GetTransporterOptions =>
             (serviceName: string) => {
               const servicesInfo = services.filter(v => v?.serviceName === serviceName);
 
@@ -76,7 +76,7 @@ export class ApiRouteCoreModule {
           inject: [apiRouterKey],
         },
       ],
-      exports: [apiRouterKey, transporterOptionsKey, apiRouterResolversKey],
+      exports: [apiRouterKey, getTransporterOptionsKey, apiRouterResolversKey],
     };
   }
 }
