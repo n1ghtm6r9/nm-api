@@ -126,10 +126,10 @@
   dependencies:
     uuid "9.0.1"
 
-"@nmxjs/config@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@nmxjs/config/-/config-1.0.2.tgz#d70bd58d56912b1082932b1a62a07b89e029dee2"
-  integrity sha512-HaAok9JlcP/BNjkTjVKQfCt9fMMo9I72bsjjPWgYugLcw13c8i/LirDJlLU7ewMREkdvDKhl9s87yV8lOFODYQ==
+"@nmxjs/config@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@nmxjs/config/-/config-1.0.4.tgz#a4cac330ecee05a87729502c0a0d3171fba55194"
+  integrity sha512-5VCD8UgRImPWjr8lhXJ18MegjXH89BUzV/AuQlwBv86ElhzDkZBjaEuI+sWn0hLsqtuqhgAvIT/D2zhA9LE56w==
   dependencies:
     "@nmxjs/types" "^1.0.0"
     "@nmxjs/utils" "^1.0.0"

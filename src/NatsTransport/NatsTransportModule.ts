@@ -10,7 +10,7 @@ import * as Services from './services';
     {
       provide: natsTransportStrategyKey,
       useFactory: (createApiService: Services.CreateApiService): ITransportStrategy => ({
-        type: TransporterEnumType.GRPC,
+        type: TransporterEnumType.NATS,
         createService: createApiService.call.bind(createApiService),
       }),
       inject: [Services.CreateApiService],

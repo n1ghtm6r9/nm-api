@@ -1,6 +1,6 @@
 {
   "name": "@nmxjs/api",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -29,7 +29,7 @@
   "dependencies": {
     "@nestjs/common": "^10.2.10",
     "@nestjs/graphql": "^12.0.11",
-    "@nmxjs/config": "^1.0.2",
+    "@nmxjs/config": "^1.0.4",
     "@nmxjs/errors": "^1.0.3",
     "@nmxjs/utils": "^1.0.0",
     "deepmerge": "^4.3.1",
