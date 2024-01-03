@@ -7,7 +7,7 @@ import { WebApiTypeEnum, IApiServiceWithInfo, getQueryMutationByName, webApiProp
 import { GetTransporterOptions, IApiRouterCoreModuleOptions } from './interfaces';
 
 export class ApiRouteCoreModule {
-  public static forRoot({ imports, apiRouterFactory, servicesKeys, webApiAuthHandler }: IApiRouterCoreModuleOptions): DynamicModule {
+  public static forRoot({ setupWebApi, imports, apiRouterFactory, servicesKeys, webApiAuthHandler }: IApiRouterCoreModuleOptions): DynamicModule {
     return {
       global: true,
       imports,
@@ -36,6 +36,9 @@ export class ApiRouteCoreModule {
         {
           provide: apiRouterResolversKey,
           useFactory: apiRouter => {
+            if (!setupWebApi) {
+              return null;
+            }
             return Object.keys(apiRouter).reduce((res: any, apiRouterKey) => {
               Object.keys(apiRouter[apiRouterKey]).forEach(key => {
                 const item = apiRouter[apiRouterKey];
