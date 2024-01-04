@@ -1,3 +1,5 @@
+import * as NodeCache from 'node-cache';
+import * as objHash from 'object-hash';
 import { Inject, Injectable } from '@nestjs/common';
 import { configKey, IConfig } from '@nmxjs/config';
 import { isObservable, lastValueFrom } from 'rxjs';
@@ -8,7 +10,6 @@ import { ServiceNotAvailableError } from '@nmxjs/errors';
 
 @Injectable()
 export class CreateApiService {
-  // @ts-ignore
   protected cache = new NodeCache();
 
   constructor(
@@ -19,15 +20,15 @@ export class CreateApiService {
 
   public async call(options: ICreateApiServiceOptions): Promise<IApiServiceWithInfo> {
     this.trySetupWebApiService.call(options);
-    const result = await this.transportStrategy.createService(options);
+    const { service: currentService, ...result } = await this.transportStrategy.createService(options);
     const serviceName = options.subService || options.service;
 
-    const service = Object.keys(result.service).reduce((res, methodName) => {
+    const service = Object.keys(currentService).reduce((res, methodName) => {
       res[methodName] = async (requestData: Record<string, unknown> = {}, methodOptions: IApiServiceOptions = {}) => {
         const route = `${serviceName}.${methodName}`;
 
         const getData = () => {
-          const payload = result.service[methodName](requestData);
+          const payload = currentService[methodName](requestData);
           return (isObservable(payload) ? lastValueFrom(payload) : payload).catch(e => {
             if (requestData.skipError || methodOptions.skipError) {
               return;
@@ -45,7 +46,6 @@ export class CreateApiService {
           return getData();
         }
 
-        // @ts-ignore
         const key = objHash({
           route,
           requestData,
