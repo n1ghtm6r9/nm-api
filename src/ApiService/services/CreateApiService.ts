@@ -62,7 +62,7 @@ export class CreateApiService {
       };
 
       if (options.schema[methodName].webApiType) {
-        Reflect.defineMetadata(webApiProperty, options.schema[methodName].webApiType, service[methodName]);
+        Reflect.defineMetadata(webApiProperty, options.schema[methodName].webApiType, res[methodName]);
       }
 
       return res;
