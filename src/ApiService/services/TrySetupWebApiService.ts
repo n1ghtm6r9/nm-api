@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Args } from '@nestjs/graphql';
 import { getQueryMutationByName } from '../utils';
 import { firstLetterUpperCase, toCamelCase } from '@nmxjs/utils';
 import { ICreateApiServiceOptions } from '../interfaces';
+
+const { Args } = require('@nestjs/graphql');
 
 @Injectable()
 export class TrySetupWebApiService {
