@@ -5,10 +5,10 @@ import { ClientNats } from '@nestjs/microservices';
 import { configKey, IConfig } from '@nmxjs/config';
 import type { ICreateApiServiceOptions, IApiServiceWithInfo } from '../../ApiService';
 
+const clients = new Map<string, ClientNats>();
+
 @Injectable()
 export class CreateApiService {
-  protected readonly clients = new Map<string, ClientNats>();
-
   constructor(@Inject(configKey) protected readonly config: IConfig) {}
 
   public async call(options: ICreateApiServiceOptions): Promise<IApiServiceWithInfo> {
@@ -21,12 +21,12 @@ export class CreateApiService {
     };
 
     const key = objHash(natsOptions);
-    let client = this.clients.get(key);
+    let client = clients.get(key);
 
     if (!client) {
       client = ClientProxyFactory.create(natsOptions) as ClientNats;
       await client.connect();
-      this.clients.set(key, client);
+      clients.set(key, client);
     }
 
     const service = Object.keys(options.schema).reduce((res, methodName) => {
@@ -34,13 +34,13 @@ export class CreateApiService {
       return res;
     }, {});
 
-    process.once('SIGTERM', () => {
+    const onClose = () => {
       client.close();
-    });
+      clients.delete(key);
+    };
 
-    process.once('SIGINT', () => {
-      client.close();
-    });
+    process.once('SIGTERM', onClose);
+    process.once('SIGINT', onClose);
 
     return {
       serviceName: options.service,
