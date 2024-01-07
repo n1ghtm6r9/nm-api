@@ -29,7 +29,7 @@ export class ApiRouteCoreModule {
                 return null;
               }
 
-              return servicesInfo.reduce((res, v) => deepmerge(res, v.options as object));
+              return servicesInfo.reduce((res, v) => deepmerge(res, v.options as object), {});
             },
           inject: servicesKeys,
         },
