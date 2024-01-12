@@ -20,7 +20,13 @@ export class CreateApiService {
 
   public async call(options: ICreateApiServiceOptions): Promise<IApiServiceWithInfo> {
     this.trySetupWebApiService.call(options);
-    const { service: currentService, ...result } = await this.transportStrategy.createService(options);
+    const createServiceResult = await this.transportStrategy.createService(options);
+
+    if (!createServiceResult) {
+      return;
+    }
+
+    const { service: currentService, ...result } = createServiceResult;
     const serviceName = options.subService || options.service;
 
     const service = Object.keys(currentService).reduce((res, methodName) => {

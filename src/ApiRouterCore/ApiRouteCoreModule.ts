@@ -15,7 +15,7 @@ export class ApiRouteCoreModule {
       providers: [
         {
           provide: apiRouterKey,
-          useFactory: (...items: IApiServiceWithInfo[]) => apiRouterFactory(...items.map(v => v.service)),
+          useFactory: (...items: IApiServiceWithInfo[]) => apiRouterFactory(...items.map(v => v?.service)),
           inject: servicesKeys,
         },
         {
