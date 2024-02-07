@@ -8,7 +8,7 @@ export class CreateApiService {
   constructor(@Inject(configKey) protected readonly config: IConfig) {}
 
   public async call(options: ICreateApiServiceOptions): Promise<IApiServiceWithInfo> {
-    const serviceInfo = this.config.transport.services.find(v => v.name === service);
+    const serviceInfo = this.config.transport.services.find(v => v.name === options.service);
 
     if (!serviceInfo) {
       return;
