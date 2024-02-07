@@ -6,12 +6,13 @@ import { apiServiceFactoryKey } from './constants';
 import * as Services from './services';
 import { ITransportStrategy } from './interfaces';
 import { transportStrategyKey } from './constants';
+import { TcpTransportModule, tcpTransportStrategyKey } from '../TcpTransport';
 import { NatsTransportModule, natsTransportStrategyKey } from '../NatsTransport';
 import { GrpcTransportModule, grpcTransportStrategyKey } from '../GrpcTransport';
 
 @Global()
 @Module({
-  imports: [GrpcTransportModule, NatsTransportModule],
+  imports: [TcpTransportModule, GrpcTransportModule, NatsTransportModule],
   providers: [
     ...Object.values(Services),
     {
@@ -35,7 +36,7 @@ import { GrpcTransportModule, grpcTransportStrategyKey } from '../GrpcTransport'
 
         return strategy;
       },
-      inject: [configKey, grpcTransportStrategyKey, natsTransportStrategyKey],
+      inject: [configKey, tcpTransportStrategyKey, grpcTransportStrategyKey, natsTransportStrategyKey],
     },
   ],
   exports: [apiServiceFactoryKey],

@@ -21,7 +21,7 @@ export class CreateApiService {
     const grpcOptions: GrpcOptions = {
       transport: Transport.GRPC,
       options: {
-        url: `${serviceInfo.host || '127.0.0.1'}:${serviceInfo.port || 6000}`,
+        url: `${serviceInfo.host || '127.0.0.1'}:${serviceInfo.port || 3000}`,
         package: [packageName],
         protoPath: [protoPath],
         keepalive: {

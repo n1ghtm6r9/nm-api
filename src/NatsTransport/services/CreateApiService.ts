@@ -42,9 +42,9 @@ export class CreateApiService {
     }, {});
 
     return {
-      serviceName: options.service,
-      options: natsOptions,
       service,
+      options: natsOptions,
+      serviceName: options.service,
     };
   }
 }
