@@ -1,4 +1,5 @@
 import { ClientProxyFactory, Transport, TcpClientOptions } from '@nestjs/microservices';
+import { defaultHost } from '@nmxjs/constants';
 import { Inject, Injectable } from '@nestjs/common';
 import { configKey, IConfig } from '@nmxjs/config';
 import type { ICreateApiServiceOptions, IApiServiceWithInfo } from '../../ApiService';
@@ -17,7 +18,7 @@ export class CreateApiService {
     const tcpOptions: TcpClientOptions = {
       transport: Transport.TCP,
       options: {
-        host: serviceInfo.host || '127.0.0.1',
+        host: serviceInfo.host || defaultHost,
         port: serviceInfo.port || 3000,
       },
     };

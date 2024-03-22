@@ -1,4 +1,5 @@
 import { ClientGrpc, ClientProxyFactory, Transport, GrpcOptions } from '@nestjs/microservices';
+import { defaultHost } from '@nmxjs/constants';
 import { Inject, Injectable } from '@nestjs/common';
 import { configKey, IConfig } from '@nmxjs/config';
 import { GenerateProtoService } from './GenerateProtoService';
@@ -21,7 +22,7 @@ export class CreateApiService {
     const grpcOptions: GrpcOptions = {
       transport: Transport.GRPC,
       options: {
-        url: `${serviceInfo.host || '127.0.0.1'}:${serviceInfo.port || 3000}`,
+        url: `${serviceInfo.host || defaultHost}:${serviceInfo.port || 3000}`,
         package: [packageName],
         protoPath: [protoPath],
         keepalive: {

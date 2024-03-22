@@ -1,5 +1,6 @@
 import * as objHash from 'object-hash';
 import { ClientProxyFactory, Transport, NatsOptions } from '@nestjs/microservices';
+import { defaultHost } from '@nmxjs/constants';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientNats } from '@nestjs/microservices';
 import { configKey, IConfig } from '@nmxjs/config';
@@ -15,7 +16,7 @@ export class CreateApiService {
     const natsOptions: NatsOptions = {
       transport: Transport.NATS,
       options: {
-        servers: this.config.transport.services.map(v => `nats://${v.host || '127.0.0.1'}:${v.port || 4222}`).sort(),
+        servers: this.config.transport.services.map(v => `nats://${v.host || defaultHost}:${v.port || 4222}`).sort(),
         ...(this.config.transport.keepaliveTimeMs ? { pingInterval: this.config.transport.keepaliveTimeMs } : {}),
       },
     };
