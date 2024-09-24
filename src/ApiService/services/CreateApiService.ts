@@ -39,6 +39,11 @@ export class CreateApiService {
             if (requestData.skipError || methodOptions.skipError) {
               return;
             }
+
+            if (typeof e === 'string') {
+              throw new Error(e);
+            }
+
             if (e.message.includes('Empty response. There are no subscribers listening to that message')) {
               throw new ServiceNotAvailableError(serviceName, methodName);
             }
