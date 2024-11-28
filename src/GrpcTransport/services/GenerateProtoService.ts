@@ -26,6 +26,7 @@ export class GenerateProtoService {
       `service ${protoServiceName} {\n`,
     ];
     const protoMessages: string[] = [];
+    const existMessageNames: string[] = [];
 
     for (const methodName of Object.keys(schema)) {
       const upperMethodName = firstLetterUpperCase({ str: methodName });
@@ -33,19 +34,23 @@ export class GenerateProtoService {
       const responseMethodName = `${upperMethodName}Response`;
       protoFileData.push(`    rpc ${methodName} (${requestMethodName}) returns (${responseMethodName}) {}\n`);
 
-      protoMessages.push(
-        ...this.generateProtoMessagesService.call({
-          messageName: requestMethodName,
-          objSchema: schema[methodName].request,
-        }),
-      );
+      let res = this.generateProtoMessagesService.call({
+        messageName: requestMethodName,
+        objSchema: schema[methodName].request,
+        existMessageNames,
+      });
 
-      protoMessages.push(
-        ...this.generateProtoMessagesService.call({
-          messageName: responseMethodName,
-          objSchema: schema[methodName].response,
-        }),
-      );
+      protoMessages.push(...res.data);
+      existMessageNames.push(...res.messageNames);
+
+      res = this.generateProtoMessagesService.call({
+        messageName: responseMethodName,
+        objSchema: schema[methodName].response,
+        existMessageNames,
+      });
+
+      protoMessages.push(...res.data);
+      existMessageNames.push(...res.messageNames);
     }
 
     protoFileData.push('}\n\n');

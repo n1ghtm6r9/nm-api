@@ -3,9 +3,21 @@ import { IGenerateProtoMessagesOptions } from '../interfaces';
 
 @Injectable()
 export class GenerateProtoMessagesService {
-  public call({ messageName, objSchema }: IGenerateProtoMessagesOptions): string[] {
+  public call({ messageName, objSchema, existMessageNames }: IGenerateProtoMessagesOptions) {
+    let messageNames = [messageName];
+
+    if (existMessageNames.find(v => v === messageName)) {
+      return {
+        data: [],
+        messageNames: [],
+      };
+    }
+
     if (!objSchema) {
-      return [`message ${messageName} {}\n\n`];
+      return {
+        data: [`message ${messageName} {}\n\n`],
+        messageNames,
+      };
     }
 
     const fieldsResult: string[] = [`message ${messageName} {\n`];
@@ -32,12 +44,15 @@ export class GenerateProtoMessagesService {
         fieldStr += `google.protobuf.Struct `;
       } else {
         fieldStr += `${fieldData.type.name} `;
-        nestedResult.push(
-          ...this.call({
-            messageName: fieldData.type.name,
-            objSchema: fieldData.type,
-          }),
-        );
+
+        const res = this.call({
+          messageName: fieldData.type.name,
+          objSchema: fieldData.type,
+          existMessageNames: [...messageNames, ...existMessageNames],
+        });
+
+        nestedResult.push(...res.data);
+        messageNames = Array.from(new Set([...messageNames, ...res.messageNames]));
       }
 
       fieldStr += `${fieldName} = ${i + 1};\n`;
@@ -47,6 +62,9 @@ export class GenerateProtoMessagesService {
 
     fieldsResult.push('}\n\n');
 
-    return [...fieldsResult.join(''), ...nestedResult];
+    return {
+      data: [...fieldsResult.join(''), ...nestedResult],
+      messageNames,
+    };
   }
 }
