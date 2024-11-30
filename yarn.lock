@@ -65,10 +65,10 @@
   dependencies:
     "@nestjs/microservices" "^10.2.10"
 
-"@nmxjs/utils@^1.0.13":
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/@nmxjs/utils/-/utils-1.0.13.tgz#e845aec2390c29b2ab826103369b956f84fa0ea9"
-  integrity sha512-YBRjHmU9OyX0y9oQ2CfOwTuP7KD0xUqvbLm1srlS51Z2aKqUBcd33C4etFPcZJFo8At4p0A1CDNCMDLQJ5NorA==
+"@nmxjs/utils@^1.0.21":
+  version "1.0.21"
+  resolved "https://registry.yarnpkg.com/@nmxjs/utils/-/utils-1.0.21.tgz#ac492d828c81a5ee5e1ac2c1154405f379ef0497"
+  integrity sha512-lpNTPk9gr549kWTsNMrJGn+3P4Ef7vDmbYiEyvEVRbylLhEc7gkma7GdRxG0L8V5tFKRGps82Q5e9hZvLFCObw==
   dependencies:
     "@nestjs/common" "^10.3.0"
     "@nmxjs/constants" "^1.0.1"

@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod, MessagePattern } from '@nestjs/microservices';
-import { isWorkerApp } from '@nmxjs/utils';
+import { isWorkerApp, firstLetterUpperCase } from '@nmxjs/utils';
 
 export const ControllerEndpoints = (serviceName: string) => (target: Function) => {
   Controller()(target);
@@ -9,7 +9,7 @@ export const ControllerEndpoints = (serviceName: string) => (target: Function) =
       if (key === 'constructor') {
         return;
       }
-      GrpcMethod(serviceName, key)(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
+      GrpcMethod(`${firstLetterUpperCase({ str: serviceName })}Service`, key)(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
       MessagePattern(`${serviceName}.${key}`)(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
     });
   }
