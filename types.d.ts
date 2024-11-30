@@ -17,4 +17,5 @@ declare module '@nmxjs/config' {
     };
   }
   const configKey: string;
+  const getConfig: () => IConfig;
 }
