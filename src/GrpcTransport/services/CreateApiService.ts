@@ -36,7 +36,6 @@ export class CreateApiService {
           'grpc.default_compression_level': 3,
         },
         loader: {
-          defaults: true,
           arrays: true,
           objects: true,
         },
