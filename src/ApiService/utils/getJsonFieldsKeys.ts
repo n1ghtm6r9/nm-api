@@ -3,6 +3,10 @@ const jsonFieldsKeysMap: Map<string, string[]> = new Map();
 export const getJsonFieldsKeys = (key: string) => jsonFieldsKeysMap.get(key);
 
 export function setJsonFieldsKey(key: string, objSchema: object, prevKey?: string) {
+  if (!objSchema) {
+    return;
+  }
+
   if (!jsonFieldsKeysMap.get(key)) {
     jsonFieldsKeysMap.set(key, []);
   }
