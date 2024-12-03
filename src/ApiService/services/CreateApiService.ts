@@ -1,12 +1,13 @@
 import * as NodeCache from 'node-cache';
 import * as objHash from 'object-hash';
 import { Inject, Injectable } from '@nestjs/common';
-import { configKey, IConfig } from '@nmxjs/config';
+import { configKey, IConfig, TransporterEnumType } from '@nmxjs/config';
 import { isObservable, lastValueFrom } from 'rxjs';
 import { transportStrategyKey, webApiProperty } from '../constants';
 import { ICreateApiServiceOptions, IApiServiceWithInfo, ITransportStrategy, IApiServiceOptions } from '../interfaces';
 import { TrySetupWebApiService } from './TrySetupWebApiService';
 import { ServiceNotAvailableError } from '@nmxjs/errors';
+import { TransformJsonService } from './TransformJsonService';
 
 @Injectable()
 export class CreateApiService {
@@ -15,6 +16,7 @@ export class CreateApiService {
   constructor(
     @Inject(configKey) protected readonly config: IConfig,
     @Inject(transportStrategyKey) protected readonly transportStrategy: ITransportStrategy,
+    protected readonly transformJsonService: TransformJsonService,
     protected readonly trySetupWebApiService: TrySetupWebApiService,
   ) {}
 
@@ -33,9 +35,9 @@ export class CreateApiService {
       res[methodName] = async (requestData: Record<string, unknown> = {}, methodOptions: IApiServiceOptions = {}) => {
         const route = `${serviceName}.${methodName}`;
 
-        const getData = () => {
+        const getData = async () => {
           const payload = currentService[methodName](requestData);
-          return (isObservable(payload) ? lastValueFrom(payload) : payload).catch(e => {
+          const result = await (isObservable(payload) ? lastValueFrom(payload) : payload).catch(e => {
             if (requestData.skipError || methodOptions.skipError) {
               return;
             }
@@ -49,6 +51,12 @@ export class CreateApiService {
             }
             throw e;
           });
+
+          if ([TransporterEnumType.GRPC].includes(this.transportStrategy.type)) {
+            return this.transformJsonService.call(result);
+          }
+
+          return result;
         };
 
         const cacheTtlMs = requestData.cacheTtlMs || methodOptions.cacheTtlMs;

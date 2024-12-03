@@ -1,7 +1,8 @@
 import { isWorkerApp } from '@nmxjs/utils';
-import { Controller } from '@nestjs/common';
+import { Controller, UseInterceptors } from '@nestjs/common';
 import { GrpcMethod, MessagePattern } from '@nestjs/microservices';
 import { getConfig, TransporterEnumType } from '@nmxjs/config';
+import { GrpcInterceptor } from '../../GrpcTransport/interceptors';
 
 const config = getConfig();
 
@@ -20,6 +21,7 @@ export const ControllerEndpoints = (serviceName: string) => (target: Function) =
             .join('')}Service`,
           key,
         )(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
+        UseInterceptors(GrpcInterceptor)(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
       } else {
         MessagePattern(`${serviceName}.${key}`)(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
       }

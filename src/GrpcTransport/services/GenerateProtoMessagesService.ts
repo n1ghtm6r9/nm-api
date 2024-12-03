@@ -34,14 +34,12 @@ export class GenerateProtoMessagesService {
         fieldStr += `repeated `;
       }
 
-      if (fieldData.type === String || fieldData.enum) {
+      if (fieldData.type === String || fieldData.enum || fieldData.type === Object) {
         fieldStr += `string `;
       } else if (fieldData.type === Number) {
         fieldStr += `double `;
       } else if (fieldData.type === Boolean) {
         fieldStr += `bool `;
-      } else if (fieldData.type === Object) {
-        fieldStr += `google.protobuf.Struct `;
       } else {
         fieldStr += `${fieldData.type.name} `;
 
