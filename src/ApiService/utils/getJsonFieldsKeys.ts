@@ -26,7 +26,7 @@ export function setJsonFieldsKey(key: string, objSchema: object, prevKey?: strin
     } else if (fieldData.type === String || fieldData.enum || fieldData.type === Number || fieldData.type === Boolean) {
       continue;
     } else {
-      setJsonFieldsKey(key, objSchema[fieldName], fieldName);
+      setJsonFieldsKey(key, fieldData.type, fieldName);
     }
   }
 }
