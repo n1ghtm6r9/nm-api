@@ -34,7 +34,7 @@ export class GenerateProtoMessagesService {
         fieldStr += `repeated `;
       }
 
-      if (fieldData.type === String || fieldData.enum || fieldData.type === Object) {
+      if (fieldData.type === String || fieldData.enum || fieldData.type === Object || fieldData.type === JSON) {
         fieldStr += `string `;
       } else if (fieldData.type === Number) {
         fieldStr += `double `;

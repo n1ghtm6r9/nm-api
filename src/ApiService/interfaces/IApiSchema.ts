@@ -1,10 +1,3 @@
-import { WebApiTypeEnum } from './WebApiTypeEnum';
+import { IApiSchemaItem } from './IApiSchemaItem';
 
-export type IApiSchema = Record<
-  string,
-  {
-    request?: object;
-    response: object;
-    webApiType?: WebApiTypeEnum;
-  }
->;
+export type IApiSchema = Record<string, IApiSchemaItem>;

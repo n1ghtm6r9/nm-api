@@ -1,25 +1,26 @@
 import { Injectable } from '@nestjs/common';
+import { getJsonFieldsKeys } from '../utils';
 
 @Injectable()
 export class TransformJsonService {
-  public call<T>(data: T): T {
-    for (const key of Object.keys(data)) {
-      if (typeof data[key] !== 'object') {
-        continue;
-      }
+  public call<T>(key: string, data: T): T {
+    const jsonFieldsKeys = getJsonFieldsKeys(key);
 
-      const arr = Array.isArray(data[key]) ? data[key] : [data[key]];
+    if (!jsonFieldsKeys || jsonFieldsKeys.length === 0) {
+      return data;
+    }
 
-      for (const item of arr) {
-        if (typeof item !== 'object') {
-          continue;
-        }
+    for (const path of jsonFieldsKeys) {
+      const [firstKey, secondKey] = path.split('.');
 
-        for (const secondKey of Object.keys(item)) {
-          if (typeof item[secondKey] === 'string' && item[secondKey].substring(0, 4) === 'json') {
-            item[secondKey] = JSON.parse(item[secondKey].substring(4));
-          }
-        }
+      if (firstKey && !secondKey) {
+        data[firstKey] = JSON.parse(data[firstKey].substring(4));
+      } else if (Array.isArray(data[firstKey])) {
+        data[firstKey].forEach(item => {
+          item[secondKey] = JSON.parse(item[secondKey].substring(4));
+        });
+      } else {
+        data[firstKey][secondKey] = JSON.parse(data[firstKey][secondKey].substring(4));
       }
     }
 

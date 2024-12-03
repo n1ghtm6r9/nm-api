@@ -6,6 +6,7 @@ import { firstLetterUpperCase } from '@nmxjs/utils';
 import type { ICreateApiServiceOptions } from '../../ApiService';
 import { GetPackageNameService } from './GetPackageNameService';
 import { GenerateProtoMessagesService } from './GenerateProtoMessagesService';
+import { setJsonFieldsKey } from '../../ApiService/utils/getJsonFieldsKeys';
 
 @Injectable()
 export class GenerateProtoService {
@@ -33,6 +34,8 @@ export class GenerateProtoService {
       const requestMethodName = `${upperMethodName}Request`;
       const responseMethodName = `${upperMethodName}Response`;
       protoFileData.push(`    rpc ${methodName} (${requestMethodName}) returns (${responseMethodName}) {}\n`);
+
+      setJsonFieldsKey(`${service}.${methodName}`, schema[methodName].response);
 
       let res = this.generateProtoMessagesService.call({
         messageName: requestMethodName,

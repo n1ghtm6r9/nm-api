@@ -1,28 +1,31 @@
 import { map, Observable } from 'rxjs';
 import { CallHandler, Injectable, NestInterceptor } from '@nestjs/common';
+import { getJsonFieldsKeys } from '../../ApiService/utils/getJsonFieldsKeys';
 
 @Injectable()
 export class GrpcInterceptor implements NestInterceptor {
-  intercept(_, next: CallHandler): Observable<any> {
+  constructor(protected readonly key: string) {}
+
+  public intercept(_, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map(res => {
-        for (const key of Object.keys(res)) {
-          if (typeof res[key] !== 'object') {
-            continue;
-          }
+        const jsonFieldsKeys = getJsonFieldsKeys(this.key);
 
-          const arr = Array.isArray(res[key]) ? res[key] : [res[key]];
+        if (!jsonFieldsKeys || jsonFieldsKeys.length === 0) {
+          return res;
+        }
 
-          for (const item of arr) {
-            if (typeof item !== 'object') {
-              continue;
-            }
+        for (const path of jsonFieldsKeys) {
+          const [firstKey, secondKey] = path.split('.');
 
-            for (const secondKey of Object.keys(item)) {
-              if (typeof item[secondKey] === 'object') {
-                item[secondKey] = `json${JSON.stringify(item[secondKey])}`;
-              }
-            }
+          if (firstKey && !secondKey) {
+            res[firstKey] = `json${JSON.stringify(res[firstKey])}`;
+          } else if (Array.isArray(res[firstKey])) {
+            res[firstKey].forEach(item => {
+              item[secondKey] = `json${JSON.stringify(item[secondKey])}`;
+            });
+          } else {
+            res[firstKey][secondKey] = `json${JSON.stringify(res[firstKey][secondKey])}`;
           }
         }
 

@@ -1,7 +1,7 @@
 import * as NodeCache from 'node-cache';
 import * as objHash from 'object-hash';
 import { Inject, Injectable } from '@nestjs/common';
-import { configKey, IConfig, TransporterEnumType } from '@nmxjs/config';
+import { configKey, IConfig } from '@nmxjs/config';
 import { isObservable, lastValueFrom } from 'rxjs';
 import { transportStrategyKey, webApiProperty } from '../constants';
 import { ICreateApiServiceOptions, IApiServiceWithInfo, ITransportStrategy, IApiServiceOptions } from '../interfaces';
@@ -52,11 +52,7 @@ export class CreateApiService {
             throw e;
           });
 
-          if ([TransporterEnumType.GRPC].includes(this.transportStrategy.type)) {
-            return this.transformJsonService.call(result);
-          }
-
-          return result;
+          return this.transformJsonService.call(route, result);
         };
 
         const cacheTtlMs = requestData.cacheTtlMs || methodOptions.cacheTtlMs;

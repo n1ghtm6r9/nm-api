@@ -13,6 +13,7 @@ export const ControllerEndpoints = (serviceName: string) => (target: Function) =
       if (key === 'constructor') {
         return;
       }
+      const methodKey = `${serviceName}.${key}`;
       if (config.transport.type === TransporterEnumType.GRPC) {
         GrpcMethod(
           `${serviceName
@@ -21,9 +22,9 @@ export const ControllerEndpoints = (serviceName: string) => (target: Function) =
             .join('')}Service`,
           key,
         )(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
-        UseInterceptors(GrpcInterceptor)(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
+        UseInterceptors(new GrpcInterceptor(methodKey))(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
       } else {
-        MessagePattern(`${serviceName}.${key}`)(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
+        MessagePattern(methodKey)(target, key, Object.getOwnPropertyDescriptor(target.prototype, key));
       }
     });
   }

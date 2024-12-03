@@ -1,4 +1,5 @@
 export * from './IApiSchema';
+export * from './IApiSchemaItem';
 export * from './IApiService';
 export * from './IApiServiceFactory';
 export * from './ICreateApiServiceOptions';
