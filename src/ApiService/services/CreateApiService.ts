@@ -33,7 +33,7 @@ export class CreateApiService {
     const service = Object.keys(currentService).reduce((res, methodName) => {
       res[methodName] = async (requestData: Record<string, unknown> = {}, methodOptions: IApiServiceOptions = {}) => {
         const route = `${serviceName}.${methodName}`;
-        const resultRequestData = transformStringifyJson(route, requestData);
+        const resultRequestData = transformStringifyJson(`${route}.request`, requestData);
 
         const getData = async () => {
           const payload = currentService[methodName](resultRequestData);
@@ -52,7 +52,7 @@ export class CreateApiService {
             throw e;
           });
 
-          return transformParseJson(route, result);
+          return transformParseJson(`${route}.response`, result);
         };
 
         const cacheTtlMs = requestData.cacheTtlMs || methodOptions.cacheTtlMs;

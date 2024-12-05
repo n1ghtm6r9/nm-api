@@ -35,7 +35,11 @@ export class GenerateProtoService {
       const responseMethodName = `${upperMethodName}Response`;
       protoFileData.push(`    rpc ${methodName} (${requestMethodName}) returns (${responseMethodName}) {}\n`);
 
-      setJsonFieldsKey(`${service}.${methodName}`, schema[methodName].response);
+      if (schema[methodName].request) {
+        setJsonFieldsKey(`${service}.${methodName}.request`, schema[methodName].request);
+      }
+
+      setJsonFieldsKey(`${service}.${methodName}.response`, schema[methodName].response);
 
       let res = this.generateProtoMessagesService.call({
         messageName: requestMethodName,
