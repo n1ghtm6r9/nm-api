@@ -3,11 +3,11 @@ import * as objHash from 'object-hash';
 import { Inject, Injectable } from '@nestjs/common';
 import { configKey, IConfig } from '@nmxjs/config';
 import { isObservable, lastValueFrom } from 'rxjs';
+import { ServiceNotAvailableError } from '@nmxjs/errors';
 import { transportStrategyKey, webApiProperty } from '../constants';
 import { ICreateApiServiceOptions, IApiServiceWithInfo, ITransportStrategy, IApiServiceOptions } from '../interfaces';
 import { TrySetupWebApiService } from './TrySetupWebApiService';
-import { ServiceNotAvailableError } from '@nmxjs/errors';
-import { TransformJsonService } from './TransformJsonService';
+import { transformParseJson, transformStringifyJson } from '../utils';
 
 @Injectable()
 export class CreateApiService {
@@ -16,7 +16,6 @@ export class CreateApiService {
   constructor(
     @Inject(configKey) protected readonly config: IConfig,
     @Inject(transportStrategyKey) protected readonly transportStrategy: ITransportStrategy,
-    protected readonly transformJsonService: TransformJsonService,
     protected readonly trySetupWebApiService: TrySetupWebApiService,
   ) {}
 
@@ -34,9 +33,10 @@ export class CreateApiService {
     const service = Object.keys(currentService).reduce((res, methodName) => {
       res[methodName] = async (requestData: Record<string, unknown> = {}, methodOptions: IApiServiceOptions = {}) => {
         const route = `${serviceName}.${methodName}`;
+        const resultRequestData = transformStringifyJson(route, requestData);
 
         const getData = async () => {
-          const payload = currentService[methodName](requestData);
+          const payload = currentService[methodName](resultRequestData);
           const result = await (isObservable(payload) ? lastValueFrom(payload) : payload).catch(e => {
             if (requestData.skipError || methodOptions.skipError) {
               return;
@@ -52,7 +52,7 @@ export class CreateApiService {
             throw e;
           });
 
-          return this.transformJsonService.call(route, result);
+          return transformParseJson(route, result);
         };
 
         const cacheTtlMs = requestData.cacheTtlMs || methodOptions.cacheTtlMs;
