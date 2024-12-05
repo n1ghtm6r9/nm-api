@@ -1,7 +1,7 @@
 import { getJsonFieldsKeys } from './getJsonFieldsKeys';
 
 export function transformStringifyJson<T>(key: string, data: T): T {
-  const jsonFieldsKeys = getJsonFieldsKeys(this.key);
+  const jsonFieldsKeys = getJsonFieldsKeys(key);
 
   if (!jsonFieldsKeys || jsonFieldsKeys.length === 0) {
     return data;
