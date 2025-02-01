@@ -1,5 +1,5 @@
 import * as deepmerge from 'deepmerge';
-import { DynamicModule } from '@nestjs/common';
+import type { DynamicModule } from '@nestjs/common';
 import { ForbiddenError } from '@nmxjs/errors';
 import { firstLetterUpperCase } from '@nmxjs/utils';
 import { apiRouterKey, apiRouterResolversKey, getTransporterOptionsKey } from './constants';

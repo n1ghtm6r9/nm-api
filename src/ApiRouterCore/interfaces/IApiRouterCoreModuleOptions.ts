@@ -1,4 +1,4 @@
-import { ModuleMetadata } from '@nestjs/common';
+import type { ModuleMetadata } from '@nestjs/common';
 import { IWebApiAuthHandlerOptions } from './IWebApiAuthHandlerOptions';
 
 export interface IApiRouterCoreModuleOptions extends Required<Pick<ModuleMetadata, 'imports'>> {
