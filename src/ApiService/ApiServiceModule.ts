@@ -30,7 +30,12 @@ import { GrpcTransportModule, grpcTransportStrategyKey } from '../GrpcTransport'
         if (!strategy) {
           throw new NotFoundError({
             entityName: 'TransportStrategy',
-            searchValue: config.transport.type,
+            search: [
+              {
+                field: 'type',
+                value: config.transport.type,
+              },
+            ],
           });
         }
 

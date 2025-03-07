@@ -1,6 +1,6 @@
 {
   "name": "@nmxjs/api",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,8 +27,8 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@nmxjs/errors": "^1.0.3",
-    "@nmxjs/utils": "^1.0.21",
+    "@nmxjs/errors": "^1.0.12",
+    "@nmxjs/utils": "^1.0.22",
     "@nmxjs/constants": "^1.0.2",
     "deepmerge": "^4.3.1",
     "express": "^4.21.2",

@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Injectable } from '@nestjs/common';
 import { IGenerateProtoMessagesOptions } from '../interfaces';
 
