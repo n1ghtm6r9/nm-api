@@ -1,6 +1,6 @@
 {
   "name": "@nmxjs/api",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -40,6 +40,7 @@
   "peerDependencies": {
     "@nestjs/graphql": "^13.0.2",
     "@nmxjs/config": "^1.0.15",
-    "@nestjs/common": "^11.0.7"
+    "@nestjs/common": "^11.0.7",
+    "@nmxjs/notifications": "^1.0.5"
   }
 }

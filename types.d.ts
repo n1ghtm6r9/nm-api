@@ -69,3 +69,8 @@ declare module '@nmxjs/config' {
   const configKey: string;
   const getConfig: () => IConfig;
 }
+declare module '@nmxjs/notifications' {
+  interface INotifier {
+    sendError(error: { message: string }): void;
+  }
+}
