@@ -1,4 +1,6 @@
-import { Module } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { grpcTransportStrategyKey } from './constants';
 import type { ITransportStrategy } from '../ApiService';
 import { TransporterEnumType } from '@nmxjs/config';
@@ -18,4 +20,10 @@ import * as Services from './services';
   ],
   exports: [grpcTransportStrategyKey],
 })
-export class GrpcTransportModule {}
+export class GrpcTransportModule implements OnApplicationBootstrap {
+  public onApplicationBootstrap() {
+    setTimeout(() => {
+      fs.rmdirSync(path.join(process.cwd(), 'temp'), { recursive: true });
+    }, 500);
+  }
+}

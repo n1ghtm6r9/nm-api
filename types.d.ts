@@ -7,6 +7,7 @@ declare module '@nestjs/common' {
   const Module = (data): ClassDecorator => {};
   const Inject: (data) => ParameterDecorator;
   const Injectable = (): ClassDecorator => {};
+  interface OnApplicationBootstrap {}
   interface OnApplicationShutdown {}
   type CallHandler = any;
   type ExecutionContext = any;

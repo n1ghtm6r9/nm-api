@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as os from 'os';
 import * as path from 'path';
 import { Injectable } from '@nestjs/common';
 import { firstLetterUpperCase } from '@nmxjs/utils';
@@ -18,7 +17,13 @@ export class GenerateProtoService {
   public call({ schema, service }: ICreateApiServiceOptions) {
     const packageName = this.getPackageNameService.call(service);
     const upperName = firstLetterUpperCase({ str: packageName });
-    const protoPath = path.join(os.tmpdir(), `${upperName}.proto`);
+    const tempDir = path.join(process.cwd(), 'temp');
+
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+
+    const protoPath = path.join(tempDir, `${upperName}.proto`);
     const protoServiceName = `${upperName}Service`;
     const protoFileData = [
       'syntax = "proto3";\n\n',
