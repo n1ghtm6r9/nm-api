@@ -47,7 +47,7 @@ export class RpcExceptionInterceptor implements NestInterceptor {
           );
         }
         Logger.error(errorMessage);
-        if (this.notifier) {
+        if (this.notifier && !e.silent) {
           this.notifier.sendError({ message: errorMessage });
         }
         throw new RpcException(`${errorMessage}${endErrorText}`);
