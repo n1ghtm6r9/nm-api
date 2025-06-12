@@ -42,10 +42,11 @@ export class GenerateProtoMessagesService {
       } else if (fieldData.type === Boolean) {
         fieldStr += `bool `;
       } else {
-        fieldStr += `${fieldData.type.name} `;
+        const typeName = fieldData.type.name.replace(/\$/g, 'SS').replace(/_/g, 'TT');
+        fieldStr += `${typeName} `;
 
         const res = this.call({
-          messageName: fieldData.type.name,
+          messageName: typeName,
           objSchema: fieldData.type,
           existMessageNames: [...messageNames, ...existMessageNames],
         });

@@ -1,10 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { Inject, Module, OnApplicationBootstrap } from '@nestjs/common';
 import { grpcTransportStrategyKey } from './constants';
 import type { ITransportStrategy } from '../ApiService';
 import { TransporterEnumType } from '@nmxjs/config';
 import * as Services from './services';
+import { configKey, IConfig } from '@nmxjs/config';
+import { nestAppStartedKey } from '@nmxjs/constants';
 
 @Module({
   providers: [
@@ -21,9 +23,26 @@ import * as Services from './services';
   exports: [grpcTransportStrategyKey],
 })
 export class GrpcTransportModule implements OnApplicationBootstrap {
+  constructor(@Inject(configKey) protected readonly config: IConfig) {}
+
   public onApplicationBootstrap() {
-    setTimeout(() => {
-      fs.rmdirSync(path.join(process.cwd(), 'temp'), { recursive: true });
-    }, 500);
+    if (this.config.transport.type !== TransporterEnumType.GRPC) {
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      if (process.env[nestAppStartedKey] !== 'true') {
+        return;
+      }
+
+      clearInterval(intervalId);
+      const dirPath = path.join(process.cwd(), 'temp');
+
+      if (!fs.existsSync(dirPath)) {
+        return;
+      }
+
+      fs.rmdirSync(dirPath, { recursive: true });
+    }, 10);
   }
 }
