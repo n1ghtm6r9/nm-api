@@ -10,7 +10,7 @@ export function transformStringifyJson<T>(key: string, data: T): T {
   for (const path of jsonFieldsKeys) {
     const [firstKey, secondKey] = path.split('.');
 
-    if (firstKey && !secondKey) {
+    if (firstKey && !secondKey && typeof data[firstKey] !== 'undefined') {
       data[firstKey] = JSON.stringify(data[firstKey]);
     } else if (Array.isArray(data[firstKey])) {
       data[firstKey].forEach(item => {
