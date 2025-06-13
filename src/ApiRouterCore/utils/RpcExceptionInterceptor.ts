@@ -50,9 +50,9 @@ export class RpcExceptionInterceptor implements NestInterceptor {
         if (this.notifier && !e.silent) {
           this.notifier.sendError({
             message: errorMessage.split('\n    at')[0],
-            code: e.code || 'UNKNOWN RPC',
-            path,
             serviceName: this.serviceName,
+            path,
+            code: e.code || 'UNKNOWN RPC',
             params: context.getArgByIndex(0),
           });
         }
