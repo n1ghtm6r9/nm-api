@@ -16,7 +16,7 @@ export class GenerateProtoService {
 
   public call({ schema, service }: ICreateApiServiceOptions) {
     const packageName = this.getPackageNameService.call(service);
-    const upperName = firstLetterUpperCase({ str: packageName });
+    const upperName = firstLetterUpperCase(packageName);
     const tempDir = path.join(process.cwd(), 'temp');
 
     if (!fs.existsSync(tempDir)) {
@@ -35,7 +35,7 @@ export class GenerateProtoService {
     const existMessageNames: string[] = [];
 
     for (const methodName of Object.keys(schema)) {
-      const upperMethodName = firstLetterUpperCase({ str: methodName });
+      const upperMethodName = firstLetterUpperCase(methodName);
       const requestMethodName = `${upperMethodName}Request`;
       const responseMethodName = `${upperMethodName}Response`;
       protoFileData.push(`    rpc ${methodName} (${requestMethodName}) returns (${responseMethodName}) {}\n`);

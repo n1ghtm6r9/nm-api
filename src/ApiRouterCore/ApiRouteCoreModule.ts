@@ -70,7 +70,7 @@ export class ApiRouteCoreModule {
                 const property = getQueryMutationByName(key).type;
                 res[property] = {
                   ...res[property],
-                  [`${apiRouterKey}0${firstLetterUpperCase({ str: key })}`]: fn,
+                  [`${apiRouterKey}0${firstLetterUpperCase(key)}`]: fn,
                 };
               });
               return res;

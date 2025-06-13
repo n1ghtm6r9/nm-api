@@ -16,7 +16,7 @@ export class TrySetupWebApiService {
       }
 
       getQueryMutationByName(methodName).decorator(() => schema[methodName].response, {
-        name: `${toCamelCase({ str: subService || service })}0${firstLetterUpperCase({ str: methodName })}`,
+        name: `${toCamelCase({ str: subService || service })}0${firstLetterUpperCase(methodName)}`,
       })(target, methodName, undefined);
 
       if (typeof schema[methodName].request === 'function') {
