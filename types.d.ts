@@ -71,7 +71,14 @@ declare module '@nmxjs/config' {
   const getConfig: () => IConfig;
 }
 declare module '@nmxjs/notifications' {
+  interface INotificationSendErrorOptions {
+    message: string;
+    code: string;
+    params?: Record<string, unknown>;
+    serviceName?: string;
+    path?: string;
+  }
   interface INotifier {
-    sendError(error: { message: string }): void;
+    sendError(error: INotificationSendErrorOptions): void;
   }
 }

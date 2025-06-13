@@ -7,11 +7,11 @@ import type { INotifier } from '@nmxjs/notifications';
 
 @Injectable()
 export class RpcExceptionInterceptor implements NestInterceptor {
-  constructor(protected readonly debug: boolean = false, protected readonly notifier?: INotifier) {}
+  constructor(protected readonly serviceName: string, protected readonly debug: boolean = false, protected readonly notifier?: INotifier) {}
 
   public intercept(context: ExecutionContext, next: CallHandler) {
     const requestId = uuid();
-    const path = context.getArgByIndex(2)?.call?.handler?.path;
+    const path = context.getArgByIndex(2)?.path || context.getArgByIndex(2)?.call?.handler?.path;
 
     if (this.debug) {
       Logger.debug(
@@ -48,7 +48,13 @@ export class RpcExceptionInterceptor implements NestInterceptor {
         }
         Logger.error(errorMessage);
         if (this.notifier && !e.silent) {
-          this.notifier.sendError({ message: errorMessage });
+          this.notifier.sendError({
+            message: errorMessage.split('\n    at')[0],
+            code: e.code || 'UNKNOWN RPC',
+            path,
+            serviceName: this.serviceName,
+            params: context.getArgByIndex(0),
+          });
         }
         throw new RpcException(`${errorMessage}${endErrorText}`);
       }),
