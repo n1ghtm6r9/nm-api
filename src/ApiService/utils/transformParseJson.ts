@@ -1,6 +1,10 @@
 import { getJsonFieldsKeys } from './getJsonFieldsKeys';
 
 export function transformParseJson<T>(key: string, data: T): T {
+  if (!data) {
+    return data;
+  }
+
   const jsonFieldsKeys = getJsonFieldsKeys(key);
 
   if (!jsonFieldsKeys || jsonFieldsKeys.length === 0) {
@@ -10,7 +14,7 @@ export function transformParseJson<T>(key: string, data: T): T {
   for (const path of jsonFieldsKeys) {
     const [firstKey, secondKey] = path.split('.');
 
-    if (firstKey && !secondKey && typeof data[firstKey] === 'undefined') {
+    if (typeof data[firstKey] === 'undefined') {
       continue;
     }
 
