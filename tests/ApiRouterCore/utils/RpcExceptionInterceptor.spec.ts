@@ -64,7 +64,7 @@ describe('RpcExceptionInterceptor', () => {
     });
   });
 
-  it('should throw RpcException on error', done => {
+  it('should throw RpcException with JSON payload on error', done => {
     const interceptor = new RpcExceptionInterceptor('test-service');
     const ctx = createContext({ id: 1 });
     const error = new Error('Something went wrong');
@@ -72,8 +72,30 @@ describe('RpcExceptionInterceptor', () => {
 
     interceptor.intercept(ctx as any, next as any).subscribe({
       error: err => {
-        expect(err.message).toContain('Something went wrong');
         expect(err.message).toContain(endErrorText);
+        const payload = err.message.split(endErrorText)[0];
+        const parsed = JSON.parse(payload);
+        expect(parsed.message).toBe('Something went wrong');
+        done();
+      },
+    });
+  });
+
+  it('should include code and statusCode in JSON payload', done => {
+    const interceptor = new RpcExceptionInterceptor('test-service');
+    const ctx = createContext({});
+    const error: any = new Error('Validation failed');
+    error.code = 'VALIDATION_ERROR';
+    error.statusCode = 400;
+    const next = createErrorNext(error);
+
+    interceptor.intercept(ctx as any, next as any).subscribe({
+      error: err => {
+        const payload = err.message.split(endErrorText)[0];
+        const parsed = JSON.parse(payload);
+        expect(parsed.message).toBe('Validation failed');
+        expect(parsed.code).toBe('VALIDATION_ERROR');
+        expect(parsed.statusCode).toBe(400);
         done();
       },
     });
@@ -93,15 +115,49 @@ describe('RpcExceptionInterceptor', () => {
     });
   });
 
-  it('should handle error with endErrorText split', done => {
+  it('should handle already-processed error with endErrorText', done => {
     const interceptor = new RpcExceptionInterceptor('test-service');
     const ctx = createContext({});
-    const error = new Error(`Original error${endErrorText}extra`);
+    const originalPayload = JSON.stringify({ message: 'Original error', code: 'ERR' });
+    const error = new Error(`${originalPayload}${endErrorText}`);
     const next = createErrorNext(error);
 
     interceptor.intercept(ctx as any, next as any).subscribe({
       error: err => {
-        expect(err.message).toContain('Original error');
+        const payload = err.message.split(endErrorText)[0];
+        const parsed = JSON.parse(payload);
+        expect(parsed.message).toContain('Original error');
+        done();
+      },
+    });
+  });
+
+  it('should log stack for fresh errors', done => {
+    const interceptor = new RpcExceptionInterceptor('test-service');
+    const ctx = createContext({});
+    const error = new Error('Fresh error');
+    const next = createErrorNext(error);
+
+    interceptor.intercept(ctx as any, next as any).subscribe({
+      error: () => {
+        const loggedMessage = (Logger.error as jest.Mock).mock.calls[0][0];
+        expect(loggedMessage).toContain('Fresh error');
+        done();
+      },
+    });
+  });
+
+  it('should log only message for processed errors', done => {
+    const interceptor = new RpcExceptionInterceptor('test-service');
+    const ctx = createContext({});
+    const error = new Error(`Processed message${endErrorText}`);
+    const next = createErrorNext(error);
+
+    interceptor.intercept(ctx as any, next as any).subscribe({
+      error: () => {
+        const loggedMessage = (Logger.error as jest.Mock).mock.calls[0][0];
+        expect(loggedMessage).toBe('Processed message');
+        expect(loggedMessage).not.toContain('at ');
         done();
       },
     });
@@ -173,6 +229,72 @@ describe('RpcExceptionInterceptor', () => {
       const debugCalls = (Logger.debug as jest.Mock).mock.calls;
       expect(debugCalls.length).toBeGreaterThanOrEqual(2);
       done();
+    });
+  });
+
+  it('should handle non-Error thrown value (e.g. string)', done => {
+    const interceptor = new RpcExceptionInterceptor('test-service');
+    const ctx = createContext({});
+    const next = {
+      handle: () => throwError(() => 'string error'),
+    };
+
+    interceptor.intercept(ctx as any, next as any).subscribe({
+      error: err => {
+        const payload = err.message.split(endErrorText)[0];
+        const parsed = JSON.parse(payload);
+        expect(parsed.message).toBe('string error');
+        done();
+      },
+    });
+  });
+
+  it('should handle error without message property', done => {
+    const interceptor = new RpcExceptionInterceptor('test-service');
+    const ctx = createContext({});
+    const next = {
+      handle: () => throwError(() => ({ code: 'SOME_CODE' })),
+    };
+
+    interceptor.intercept(ctx as any, next as any).subscribe({
+      error: err => {
+        const payload = err.message.split(endErrorText)[0];
+        const parsed = JSON.parse(payload);
+        expect(parsed.code).toBe('SOME_CODE');
+        done();
+      },
+    });
+  });
+
+  it('should handle null thrown value', done => {
+    const interceptor = new RpcExceptionInterceptor('test-service');
+    const ctx = createContext({});
+    const next = {
+      handle: () => throwError(() => null),
+    };
+
+    interceptor.intercept(ctx as any, next as any).subscribe({
+      error: err => {
+        expect(err.message).toContain(endErrorText);
+        done();
+      },
+    });
+  });
+
+  it('should strip stack trace from notifier message', done => {
+    const notifier = { sendError: jest.fn() };
+    const interceptor = new RpcExceptionInterceptor('test-service', false, notifier as any);
+    const ctx = createContext({}, { path: '/test' });
+    const error = new Error('Error message');
+    const next = createErrorNext(error);
+
+    interceptor.intercept(ctx as any, next as any).subscribe({
+      error: () => {
+        const sendErrorCall = notifier.sendError.mock.calls[0][0];
+        expect(sendErrorCall.message).toBe('Error message');
+        expect(sendErrorCall.message).not.toContain('\n    at');
+        done();
+      },
     });
   });
 });

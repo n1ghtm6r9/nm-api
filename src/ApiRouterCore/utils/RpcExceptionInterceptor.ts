@@ -7,7 +7,11 @@ import type { INotifier } from '@nmxjs/notifications';
 
 @Injectable()
 export class RpcExceptionInterceptor implements NestInterceptor {
-  constructor(protected readonly serviceName: string, protected readonly debug: boolean = false, protected readonly notifier?: INotifier) {}
+  constructor(
+    protected readonly serviceName: string,
+    protected readonly debug: boolean = false,
+    protected readonly notifier?: INotifier,
+  ) {}
 
   public intercept(context: ExecutionContext, next: CallHandler) {
     const requestId = uuid();
@@ -34,8 +38,11 @@ export class RpcExceptionInterceptor implements NestInterceptor {
         }
       }),
       catchError(e => {
-        const splitResult: string[] = e.message.split(endErrorText);
-        const errorMessage = splitResult.length === 1 ? e.stack : splitResult[0];
+        const message = typeof e?.message === 'string' ? e.message : String(e);
+        const splitResult: string[] = message.split(endErrorText);
+        const isProcessed = splitResult.length > 1;
+        const errorMessage = isProcessed ? splitResult[0] : message;
+
         if (this.debug) {
           Logger.debug(
             `Rpc Response: ${readableJson({
@@ -46,17 +53,24 @@ export class RpcExceptionInterceptor implements NestInterceptor {
             })}`,
           );
         }
-        Logger.error(errorMessage);
-        if (this.notifier && !e.silent) {
+        Logger.error(isProcessed ? errorMessage : e?.stack || errorMessage);
+        if (this.notifier && !e?.silent) {
           this.notifier.sendError({
             message: errorMessage.split('\n    at')[0],
             serviceName: this.serviceName,
             path,
-            code: e.code || 'UNKNOWN RPC',
+            code: e?.code || 'UNKNOWN RPC',
             params: context.getArgByIndex(0),
           });
         }
-        throw new RpcException(`${errorMessage}${endErrorText}`);
+
+        const errorPayload = JSON.stringify({
+          message: errorMessage.split('\n    at')[0],
+          code: e?.code,
+          statusCode: e?.statusCode,
+        });
+
+        throw new RpcException(`${errorPayload}${endErrorText}`);
       }),
     );
   }

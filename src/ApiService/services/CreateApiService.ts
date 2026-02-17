@@ -7,7 +7,7 @@ import { ServiceNotAvailableError } from '@nmxjs/errors';
 import { transportStrategyKey, webApiProperty } from '../constants';
 import { ICreateApiServiceOptions, IApiServiceWithInfo, ITransportStrategy, IApiServiceOptions } from '../interfaces';
 import { TrySetupWebApiService } from './TrySetupWebApiService';
-import { transformParseJson, transformStringifyJson } from '../utils';
+import { transformParseJson, transformStringifyJson, parseGrpcError } from '../utils';
 
 @Injectable()
 export class CreateApiService {
@@ -46,9 +46,14 @@ export class CreateApiService {
               throw new Error(e);
             }
 
-            if (e.message.includes('Empty response. There are no subscribers listening to that message')) {
+            if (e.message?.includes('Empty response. There are no subscribers listening to that message')) {
               throw new ServiceNotAvailableError(serviceName, methodName);
             }
+
+            if (e.details) {
+              throw parseGrpcError(e);
+            }
+
             throw e;
           });
 
