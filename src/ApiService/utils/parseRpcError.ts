@@ -1,8 +1,8 @@
 import { endErrorText } from '../../ApiRouterCore/constants';
 
-export function parseGrpcError(e: any): Error {
-  const details: string = e.details;
-  const cleanDetails = details.split(endErrorText)[0];
+export function parseRpcError(e: any): Error {
+  const raw: string = e.details ?? e.message ?? '';
+  const cleanDetails = raw.split(endErrorText)[0];
 
   try {
     const parsed = JSON.parse(cleanDetails);

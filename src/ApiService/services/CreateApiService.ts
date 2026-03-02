@@ -7,7 +7,7 @@ import { ServiceNotAvailableError } from '@nmxjs/errors';
 import { transportStrategyKey, webApiProperty } from '../constants';
 import { ICreateApiServiceOptions, IApiServiceWithInfo, ITransportStrategy, IApiServiceOptions } from '../interfaces';
 import { TrySetupWebApiService } from './TrySetupWebApiService';
-import { transformParseJson, transformStringifyJson, parseGrpcError } from '../utils';
+import { transformParseJson, transformStringifyJson, parseRpcError } from '../utils';
 
 @Injectable()
 export class CreateApiService {
@@ -50,11 +50,7 @@ export class CreateApiService {
               throw new ServiceNotAvailableError(serviceName, methodName);
             }
 
-            if (e.details) {
-              throw parseGrpcError(e);
-            }
-
-            throw e;
+            throw parseRpcError(e);
           });
 
           return transformParseJson(`${route}.response`, result);
