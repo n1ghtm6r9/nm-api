@@ -24,7 +24,7 @@ describe('parseRpcError', () => {
     const grpcError = { details: `Plain error text${endErrorText}` };
     const result = parseRpcError(grpcError);
 
-    expect(result.message).toBe('Plain error text');
+    expect(result).toBe(grpcError);
   });
 
   it('should handle details without endErrorText marker', () => {
@@ -32,8 +32,7 @@ describe('parseRpcError', () => {
     const grpcError = { details: payload };
     const result: any = parseRpcError(grpcError);
 
-    expect(result.message).toBe('Error without marker');
-    expect(result.code).toBe('ERR');
+    expect(result).toBe(grpcError);
   });
 
   it('should fallback to details as message when JSON has no message field', () => {
@@ -70,12 +69,12 @@ describe('parseRpcError', () => {
     expect(result.code).toBe('CASCADE');
   });
 
-  it('should return Error instance', () => {
+  it('should return original error when no endErrorText marker', () => {
     const payload = JSON.stringify({ message: 'test' });
     const grpcError = { details: payload };
     const result = parseRpcError(grpcError);
 
-    expect(result).toBeInstanceOf(Error);
+    expect(result).toBe(grpcError);
   });
 
   it('should parse error.message when details is absent (NATS/TCP)', () => {
@@ -105,5 +104,17 @@ describe('parseRpcError', () => {
 
     expect(result.message).toBe('From details');
     expect(result.code).toBe('DETAILS');
+  });
+
+  it('should preserve code and statusCode for non-RPC errors', () => {
+    const error: any = new Error('Invalid credentials!');
+    error.code = 'INVALID_CREDENTIALS_ERROR';
+    error.statusCode = 401;
+    const result: any = parseRpcError(error);
+
+    expect(result).toBe(error);
+    expect(result.message).toBe('Invalid credentials!');
+    expect(result.code).toBe('INVALID_CREDENTIALS_ERROR');
+    expect(result.statusCode).toBe(401);
   });
 });

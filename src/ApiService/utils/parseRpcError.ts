@@ -2,6 +2,11 @@ import { endErrorText } from '../../ApiRouterCore/constants';
 
 export function parseRpcError(e: any): Error {
   const raw: string = e.details ?? e.message ?? '';
+
+  if (!raw.includes(endErrorText)) {
+    return e;
+  }
+
   const cleanDetails = raw.split(endErrorText)[0];
 
   try {
@@ -12,7 +17,7 @@ export function parseRpcError(e: any): Error {
     return error;
   } catch (parseError) {
     if (parseError instanceof SyntaxError) {
-      return new Error(cleanDetails);
+      return e;
     }
     throw parseError;
   }
