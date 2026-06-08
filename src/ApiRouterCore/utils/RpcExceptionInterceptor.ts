@@ -60,7 +60,7 @@ export class RpcExceptionInterceptor implements NestInterceptor {
             serviceName: this.serviceName,
             path,
             code: e?.code || 'UNKNOWN RPC',
-            params: context.getArgByIndex(0),
+            params: context.getArgByIndex(0)?.res === context.getArgByIndex(1) ? undefined : context.getArgByIndex(0),
           });
         }
 
