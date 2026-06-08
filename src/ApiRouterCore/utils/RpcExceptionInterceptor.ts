@@ -38,6 +38,9 @@ export class RpcExceptionInterceptor implements NestInterceptor {
         }
       }),
       catchError(e => {
+        if (typeof e?.getStatus === 'function') {
+          throw e;
+        }
         const message = typeof e?.message === 'string' ? e.message : String(e);
         const splitResult: string[] = message.split(endErrorText);
         const isProcessed = splitResult.length > 1;
