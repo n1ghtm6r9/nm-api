@@ -73,4 +73,10 @@ describe('transformParseJson', () => {
     const result = transformParseJson('key', data);
     expect(result.filters.value).toEqual({ nested: true });
   });
+
+  it('should not crash when nested value is null', () => {
+    mockGetJsonFieldsKeys.mockReturnValue(['item.config']);
+    const result = transformParseJson('key', { item: null });
+    expect(result).toEqual({ item: null });
+  });
 });

@@ -73,4 +73,10 @@ describe('transformStringifyJson', () => {
     const result = transformStringifyJson('key', data);
     expect(result.filters.value).toBe('{"nested":true}');
   });
+
+  it('should not crash when nested value is null', () => {
+    mockGetJsonFieldsKeys.mockReturnValue(['item.config']);
+    const result = transformStringifyJson('key', { item: null });
+    expect(result).toEqual({ item: null });
+  });
 });

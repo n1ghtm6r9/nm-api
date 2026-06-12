@@ -14,7 +14,7 @@ export function transformParseJson<T>(key: string, data: T): T {
   for (const path of jsonFieldsKeys) {
     const [firstKey, secondKey] = path.split('.');
 
-    if (typeof data[firstKey] === 'undefined') {
+    if (typeof data[firstKey] === 'undefined' || data[firstKey] === null) {
       continue;
     }
 
