@@ -7,7 +7,10 @@ import type { ICreateApiServiceOptions, IApiServiceWithInfo } from '../../ApiSer
 
 @Injectable()
 export class CreateApiService {
-  constructor(@Inject(configKey) protected readonly config: IConfig, protected readonly generateProtoService: GenerateProtoService) {}
+  constructor(
+    @Inject(configKey) protected readonly config: IConfig,
+    protected readonly generateProtoService: GenerateProtoService,
+  ) {}
 
   public async call({ schema, service, subService }: ICreateApiServiceOptions): Promise<IApiServiceWithInfo> {
     const serviceInfo = this.config.transport.services.find(v => v.name === service);
@@ -16,7 +19,7 @@ export class CreateApiService {
       return;
     }
 
-    const serviceName = subService || service;
+    const serviceName = subService ? `${service}-${subService}` : service;
     const { protoPath, packageName, protoServiceName } = this.generateProtoService.call({ schema, service: serviceName });
 
     const grpcOptions: GrpcOptions = {

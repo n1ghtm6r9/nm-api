@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 import { isWorkerApp } from '@nmxjs/utils';
 import { Controller, UseInterceptors } from '@nestjs/common';
 import { GrpcMethod, MessagePattern } from '@nestjs/microservices';
@@ -6,9 +8,13 @@ import { GrpcInterceptor } from '../../GrpcTransport/interceptors';
 
 const config = getConfig();
 
+const parentService = path.basename(process.cwd());
+
 export const ControllerEndpoints = (serviceName: string) => (target: Function) => {
   Controller()(target);
   if (!isWorkerApp()) {
+    const fullServiceName = parentService && parentService !== serviceName ? `${parentService}-${serviceName}` : serviceName;
+
     Object.getOwnPropertyNames(target.prototype).forEach(key => {
       if (key === 'constructor') {
         return;
@@ -16,7 +22,7 @@ export const ControllerEndpoints = (serviceName: string) => (target: Function) =
       const methodKey = `${serviceName}.${key}`;
       if (config.transport.type === TransporterEnumType.GRPC) {
         GrpcMethod(
-          `${serviceName
+          `${fullServiceName
             .split('-')
             .map(v => `${v[0].toUpperCase()}${v.slice(1)}`)
             .join('')}Service`,
