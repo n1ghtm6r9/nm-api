@@ -1,5 +1,4 @@
 import { getJsonFieldsKeys } from './getJsonFieldsKeys';
-import { deepStringifyJson } from './deepStringifyJson';
 
 export function transformStringifyJson<T>(key: string, data: T): T {
   if (!data) {
@@ -9,7 +8,7 @@ export function transformStringifyJson<T>(key: string, data: T): T {
   const jsonFieldsKeys = getJsonFieldsKeys(key);
 
   if (!jsonFieldsKeys || jsonFieldsKeys.length === 0) {
-    return deepStringifyJson(data);
+    return data;
   }
 
   for (const path of jsonFieldsKeys) {

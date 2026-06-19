@@ -1,22 +1,29 @@
 export function deepParseJson(data: any): any {
-  if (!data || typeof data !== 'object') return data;
+  if (!data || typeof data !== 'object' || data instanceof Date) return data;
   if (Array.isArray(data)) {
-    return data.map(v => deepParseJson(v));
+    for (let i = 0; i < data.length; i++) {
+      const val = data[i];
+      if (typeof val === 'string' && (val.startsWith('{') || val.startsWith('['))) {
+        try {
+          data[i] = JSON.parse(val);
+        } catch (e) {
+          /* keep original */
+        }
+      }
+    }
+    return data;
   }
-  const result: any = {};
   for (const key of Object.keys(data)) {
     const val = data[key];
     if (typeof val === 'string' && (val.startsWith('{') || val.startsWith('['))) {
       try {
-        result[key] = JSON.parse(val);
+        data[key] = JSON.parse(val);
       } catch (e) {
-        result[key] = val;
+        /* keep original */
       }
     } else if (val !== null && typeof val === 'object') {
-      result[key] = deepParseJson(val);
-    } else {
-      result[key] = val;
+      deepParseJson(val);
     }
   }
-  return result;
+  return data;
 }
