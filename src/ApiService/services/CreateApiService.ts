@@ -28,7 +28,7 @@ export class CreateApiService {
     }
 
     const { service: currentService, ...result } = createServiceResult;
-    const serviceName = options.subService || options.service;
+    const serviceName = options.subService ? options.service + '-' + options.subService : options.service;
 
     const service = Object.keys(currentService).reduce((res, methodName) => {
       res[methodName] = async (requestData: Record<string, unknown> = {}, methodOptions: IApiServiceOptions = {}) => {

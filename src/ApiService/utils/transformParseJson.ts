@@ -1,4 +1,5 @@
 import { getJsonFieldsKeys } from './getJsonFieldsKeys';
+import { deepParseJson } from './deepParseJson';
 
 export function transformParseJson<T>(key: string, data: T): T {
   if (!data) {
@@ -8,7 +9,7 @@ export function transformParseJson<T>(key: string, data: T): T {
   const jsonFieldsKeys = getJsonFieldsKeys(key);
 
   if (!jsonFieldsKeys || jsonFieldsKeys.length === 0) {
-    return data;
+    return deepParseJson(data);
   }
 
   for (const path of jsonFieldsKeys) {

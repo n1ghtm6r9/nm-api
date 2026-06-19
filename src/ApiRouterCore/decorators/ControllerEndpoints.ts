@@ -19,7 +19,7 @@ export const ControllerEndpoints = (serviceName: string) => (target: Function) =
       if (key === 'constructor') {
         return;
       }
-      const methodKey = `${serviceName}.${key}`;
+      const methodKey = `${fullServiceName}.${key}`;
       if (config.transport.type === TransporterEnumType.GRPC) {
         GrpcMethod(
           `${fullServiceName
