@@ -1,5 +1,7 @@
 import { getJsonFieldsKeys } from './getJsonFieldsKeys';
 
+const safeParse = (value: unknown) => (typeof value === 'string' ? JSON.parse(value) : value);
+
 export function transformParseJson<T>(key: string, data: T): T {
   if (!data) {
     return data;
@@ -19,13 +21,15 @@ export function transformParseJson<T>(key: string, data: T): T {
     }
 
     if (firstKey && !secondKey) {
-      data[firstKey] = JSON.parse(data[firstKey]);
+      data[firstKey] = safeParse(data[firstKey]);
     } else if (Array.isArray(data[firstKey])) {
       data[firstKey].forEach(item => {
-        item[secondKey] = JSON.parse(item[secondKey]);
+        if (item !== null && typeof item !== 'undefined') {
+          item[secondKey] = safeParse(item[secondKey]);
+        }
       });
     } else {
-      data[firstKey][secondKey] = JSON.parse(data[firstKey][secondKey]);
+      data[firstKey][secondKey] = safeParse(data[firstKey][secondKey]);
     }
   }
 

@@ -79,4 +79,44 @@ describe('transformParseJson', () => {
     const result = transformParseJson('key', { item: null });
     expect(result).toEqual({ item: null });
   });
+
+  it('should not crash when array items miss the optional json field', () => {
+    mockGetJsonFieldsKeys.mockReturnValue(['fields.default']);
+    const data: { fields: Array<{ key: string; type: string; default?: unknown }> } = {
+      fields: [
+        { key: 'gameCount', type: 'number' },
+        { key: 'slot', type: 'object' },
+      ],
+    };
+    const result = transformParseJson('key', data);
+    expect(result.fields[0].default).toBeUndefined();
+    expect(result.fields[1].default).toBeUndefined();
+  });
+
+  it('should not crash when array items are null or undefined', () => {
+    mockGetJsonFieldsKeys.mockReturnValue(['fields.default']);
+    const data: { fields: Array<{ default?: unknown } | null | undefined> } = {
+      fields: [null, undefined, { default: '{"a":1}' }],
+    };
+    const result = transformParseJson('key', data);
+    expect(result.fields[0]).toBeNull();
+    expect(result.fields[1]).toBeUndefined();
+    expect(result.fields[2].default).toEqual({ a: 1 });
+  });
+
+  it('should keep already parsed array values as-is', () => {
+    mockGetJsonFieldsKeys.mockReturnValue(['fields.default']);
+    const data = { fields: [{ default: { a: 1 } }, { default: 5 }] };
+    const result = transformParseJson('key', data);
+    expect(result.fields[0].default).toEqual({ a: 1 });
+    expect(result.fields[1].default).toBe(5);
+  });
+
+  it('should keep already parsed values as-is for top-level and object paths', () => {
+    mockGetJsonFieldsKeys.mockReturnValue(['name']);
+    expect(transformParseJson('key', { name: { a: 1 } }).name).toEqual({ a: 1 });
+
+    mockGetJsonFieldsKeys.mockReturnValue(['filters.value']);
+    expect(transformParseJson('key', { filters: { value: undefined } }).filters.value).toBeUndefined();
+  });
 });
