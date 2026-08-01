@@ -71,6 +71,7 @@ export class RpcExceptionInterceptor implements NestInterceptor {
           message: errorMessage.split('\n    at')[0],
           code: e?.code,
           statusCode: e?.statusCode,
+          silent: e?.silent,
         });
 
         throw new RpcException(`${errorPayload}${endErrorText}`);

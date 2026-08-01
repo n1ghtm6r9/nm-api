@@ -60,6 +60,24 @@ describe('parseRpcError', () => {
     expect(result.statusCode).toBeUndefined();
   });
 
+  it('should restore silent from parsed JSON', () => {
+    const payload = JSON.stringify({ message: 'Insufficient points', code: 'INSUFFICIENT_POINTS', silent: true });
+    const grpcError = { details: `${payload}${endErrorText}` };
+    const result: any = parseRpcError(grpcError);
+
+    expect(result.message).toBe('Insufficient points');
+    expect(result.code).toBe('INSUFFICIENT_POINTS');
+    expect(result.silent).toBe(true);
+  });
+
+  it('should not set silent if not present in parsed JSON', () => {
+    const payload = JSON.stringify({ message: 'No silent error' });
+    const grpcError = { details: `${payload}${endErrorText}` };
+    const result: any = parseRpcError(grpcError);
+
+    expect(result.silent).toBeUndefined();
+  });
+
   it('should handle cascade errors (multiple endErrorText markers)', () => {
     const payload = JSON.stringify({ message: 'Original cascade error', code: 'CASCADE' });
     const grpcError = { details: `${payload}${endErrorText}${endErrorText}` };

@@ -14,6 +14,7 @@ export function parseRpcError(e: any): Error {
     const error: any = new Error(parsed.message || cleanDetails);
     if (parsed.code) error.code = parsed.code;
     if (parsed.statusCode) error.statusCode = parsed.statusCode;
+    if (parsed.silent) error.silent = parsed.silent;
     return error;
   } catch (parseError) {
     if (parseError instanceof SyntaxError) {

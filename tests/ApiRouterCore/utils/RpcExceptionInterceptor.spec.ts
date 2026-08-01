@@ -101,6 +101,39 @@ describe('RpcExceptionInterceptor', () => {
     });
   });
 
+  it('should include silent in JSON payload', done => {
+    const interceptor = new RpcExceptionInterceptor('test-service');
+    const ctx = createContext({});
+    const error: any = new Error('Insufficient points');
+    error.code = 'INSUFFICIENT_POINTS';
+    error.silent = true;
+    const next = createErrorNext(error);
+
+    interceptor.intercept(ctx as any, next as any).subscribe({
+      error: err => {
+        const payload = err.message.split(endErrorText)[0];
+        const parsed = JSON.parse(payload);
+        expect(parsed.silent).toBe(true);
+        done();
+      },
+    });
+  });
+
+  it('should not include silent in JSON payload for regular errors', done => {
+    const interceptor = new RpcExceptionInterceptor('test-service');
+    const ctx = createContext({});
+    const next = createErrorNext(new Error('Unexpected failure'));
+
+    interceptor.intercept(ctx as any, next as any).subscribe({
+      error: err => {
+        const payload = err.message.split(endErrorText)[0];
+        const parsed = JSON.parse(payload);
+        expect(parsed.silent).toBeUndefined();
+        done();
+      },
+    });
+  });
+
   it('should log error message', done => {
     const interceptor = new RpcExceptionInterceptor('test-service');
     const ctx = createContext({ id: 1 });
